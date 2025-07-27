@@ -1,26 +1,316 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* New color variables for admin dashboard */
+  --blue-primary: #2563EB;
+  --blue-primary-hover: #1D4ED8;
+  --blue-light: #DBEAFE;
+  --blue-border: #BFDBFE;
+  --red-primary: #EF4444;
+  --red-light: #FEE2E2;
+  --green-primary: #10B981;
+  --green-light: #D1FAE5;
+  --amber-primary: #F59E0B;
+  --amber-light: #FEF3C7;
+  --indicator-progress-bg: #E5E7EB;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* Dark mode for new color variables */
+  --blue-primary: #3B82F6;
+  --blue-primary-hover: #2563EB;
+  --blue-light: rgba(59, 130, 246, 0.2);
+  --blue-border: rgba(59, 130, 246, 0.3);
+  --red-primary: #F87171;
+  --red-light: rgba(248, 113, 113, 0.2);
+  --green-primary: #34D399;
+  --green-light: rgba(52, 211, 153, 0.2);
+  --amber-primary: #FBBF24;
+  --amber-light: rgba(251, 191, 36, 0.2);
+  --indicator-progress-bg: #374151;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Mess Website Classes - based on admin dashboard theme */
+.mess-card {
+  @apply bg-card text-card-foreground rounded-[var(--radius)] border border-border shadow-sm p-6;
+}
+
+.mess-section {
+  @apply space-y-4;
+}
+
+.mess-heading-lg {
+  @apply text-2xl font-bold text-foreground;
+}
+
+.mess-heading-md {
+  @apply text-lg font-semibold text-foreground;
+}
+
+.mess-text-muted {
+  @apply text-muted-foreground text-sm;
+}
+
+.mess-btn {
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors 
+  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 
+  disabled:pointer-events-none h-10 py-2 px-4;
+}
+
+.mess-btn-primary {
+  @apply bg-[var(--blue-primary)] text-white hover:bg-[var(--blue-primary-hover)];
+}
+
+.mess-btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+}
+
+.mess-btn-outline {
+  @apply border border-input bg-transparent hover:bg-accent hover:text-accent-foreground;
+}
+
+.mess-btn-ghost {
+  @apply hover:bg-accent hover:text-accent-foreground;
+}
+
+.mess-btn-icon {
+  @apply h-10 w-10 p-0 flex items-center justify-center;
+}
+
+/* Sidebar styling */
+.mess-sidebar {
+  @apply bg-[var(--sidebar)] text-[var(--sidebar-foreground)] border-r border-[var(--sidebar-border)];
+}
+
+.mess-sidebar-item {
+  @apply flex items-center gap-3 px-3 py-2 rounded-md text-[var(--sidebar-foreground)] 
+  hover:bg-[var(--sidebar-accent)] hover:text-[var(--sidebar-accent-foreground)];
+}
+
+.mess-sidebar-item-active {
+  @apply bg-[var(--sidebar-accent)] text-[var(--sidebar-accent-foreground)];
+}
+
+/* Menu pills/tabs like in the image */
+.mess-menu-tabs {
+  @apply flex gap-2 p-1 rounded-lg;
+}
+
+.mess-tab {
+  @apply px-4 py-2 rounded-md text-foreground hover:bg-secondary;
+}
+
+.mess-tab-active {
+  @apply bg-[var(--blue-primary)] text-white;
+}
+
+/* Progress bar like the attendance bars */
+.mess-progress-container {
+  @apply w-full bg-[var(--indicator-progress-bg)] rounded-full h-2 mt-1;
+}
+
+.mess-progress-bar {
+  @apply bg-[var(--blue-primary)] h-2 rounded-full;
+}
+
+/* Status colors */
+.mess-badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+.mess-badge-blue {
+  @apply bg-[var(--blue-light)] text-[var(--blue-primary)];
+}
+
+.mess-badge-red {
+  @apply bg-[var(--red-light)] text-[var(--red-primary)];
+}
+
+.mess-badge-green {
+  @apply bg-[var(--green-light)] text-[var(--green-primary)];
+}
+
+.mess-badge-amber {
+  @apply bg-[var(--amber-light)] text-[var(--amber-primary)];
+}
+
+/* Data display */
+.mess-stat-container {
+  @apply space-y-1;
+}
+
+.mess-stat-label {
+  @apply text-muted-foreground text-sm;
+}
+
+.mess-stat-value {
+  @apply text-foreground text-xl md:text-2xl font-bold;
+}
+
+.mess-stat-value-accent {
+  @apply text-[var(--red-primary)] text-xl md:text-2xl font-bold;
+}
+
+/* Menu list styling */
+.mess-menu-list {
+  @apply list-disc pl-5 space-y-1 mt-2;
+}
+
+.mess-menu-item {
+  @apply text-foreground;
+}
+
+.mess-meal-card {
+  @apply border border-border rounded-[var(--radius)] p-4;
+}
+
+.mess-meal-time {
+  @apply text-xs text-muted-foreground;
+}
+
+/* Action buttons */
+.mess-action-btn {
+  @apply inline-flex items-center justify-center gap-2 w-full;
+}
+
+/* Table styling */
+.mess-table {
+  @apply w-full border-collapse;
+}
+
+.mess-table-header {
+  @apply bg-muted/50 text-left;
+}
+
+.mess-table-header-cell {
+  @apply px-4 py-2 text-muted-foreground font-medium;
+}
+
+.mess-table-row {
+  @apply border-b border-border;
+}
+
+.mess-table-row:hover {
+  @apply bg-muted/50;
+}
+
+.mess-table-cell {
+  @apply px-4 py-3 text-foreground;
 }
