@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BarChart } from "lucide-react";
 import axios from "axios";
 
@@ -38,21 +38,18 @@ export default function WeeklyAttendanceTrends() {
   const [totalStudents, setTotalStudents] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch data on component mount
-  useEffect(() => {
-    fetchWeeklyData();
-  }, []);
-
-  const fetchWeeklyData = async () => {
+  const fetchWeeklyData = useCallback(async () => {
     setLoading(true);
     try {
       // Fetch student stats for total count
       const studentResponse = await axios.get("/api/admin/stats/students");
       const totalCount = studentResponse.data.totalStudents || 0;
       setTotalStudents(totalCount);
-      
+
       // Fetch all historical attendance data
-      const historicalResponse = await axios.get<AttendanceResponse>("/api/admin/attendance");
+      const historicalResponse = await axios.get<AttendanceResponse>(
+        "/api/admin/attendance"
+      );
       const records = historicalResponse.data.records || [];
 
       // Generate weekly data from historical records
@@ -63,7 +60,12 @@ export default function WeeklyAttendanceTrends() {
     } finally {
       setLoading(false);
     }
-  };
+  },[]);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchWeeklyData();
+  }, [fetchWeeklyData]);
 
   // Generate weekly data from historical records
   const generateWeeklyData = (
@@ -164,16 +166,17 @@ export default function WeeklyAttendanceTrends() {
               {weeklyData.map((day, index) => {
                 // Calculate normalized heights (max height 150px)
                 const maxHeight = 150;
-                
+
                 // Make sure we don't divide by zero
                 const effectiveTotalStudents = totalStudents || 1; // Fallback to 1 if zero to avoid division by zero
-                
+
                 const breakfastPercent = day.breakfast / effectiveTotalStudents;
                 const lunchPercent = day.lunch / effectiveTotalStudents;
                 const dinnerPercent = day.dinner / effectiveTotalStudents;
 
                 // Capped at 100% (1.0)
-                const breakfastHeight = Math.min(breakfastPercent, 1) * maxHeight;
+                const breakfastHeight =
+                  Math.min(breakfastPercent, 1) * maxHeight;
                 const lunchHeight = Math.min(lunchPercent, 1) * maxHeight;
                 const dinnerHeight = Math.min(dinnerPercent, 1) * maxHeight;
 
@@ -188,16 +191,14 @@ export default function WeeklyAttendanceTrends() {
                       <div className="flex items-center gap-1">
                         <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                         <span>
-                          Breakfast:{" "}
-                          {Math.round(breakfastPercent * 100)}% (
+                          Breakfast: {Math.round(breakfastPercent * 100)}% (
                           {day.breakfast})
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                         <span>
-                          Lunch: {Math.round(lunchPercent * 100)}% (
-                          {day.lunch})
+                          Lunch: {Math.round(lunchPercent * 100)}% ({day.lunch})
                         </span>
                       </div>
                       <div className="flex items-center gap-1">

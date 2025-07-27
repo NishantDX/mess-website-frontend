@@ -1,12 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import {
-  Search,
-  Filter,
-  Calendar,
-  Download,
-  AlertCircle,
-} from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Search, Filter, Calendar, Download, AlertCircle } from "lucide-react";
 import axios from "axios";
 import AttendanceByMealType from "@/components/admin/attendance/attendanceByMealType";
 import WeeklyAttendanceTrends from "@/components/admin/attendance/weeklyAttendanceTrends";
@@ -108,115 +102,120 @@ export default function AttendancePage() {
   const [weeklyData, setWeeklyData] = useState<WeeklyData[]>([]);
 
   // API call to fetch students and attendance data
-  const fetchData = async (
-    page: number,
-    limit: number,
-    searchTerm: string = "",
-    meal: string = "all",
-    date: Date = new Date()
-  ): Promise<void> => {
-    setLoading(true);
-    setError(null);
+  const fetchData = useCallback(
+    async (
+      page: number,
+      limit: number,
+      searchTerm: string = "",
+      meal: string = "all",
+      date: Date = new Date()
+    ): Promise<void> => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Format date for API request - YYYY-MM-DD
-      const formattedDate = date.toISOString().split("T")[0];
+      try {
+        // Format date for API request - YYYY-MM-DD
+        const formattedDate = date.toISOString().split("T")[0];
 
-      // Fetch student stats
-      const studentResponse = await axios.get<StudentResponse>(
-        "/api/admin/stats/students"
-      );
-
-      // Fetch all students (for department data)
-      const allStudentsResponse = await axios.get<{ students: Student[] }>(
-        "/api/students/"
-      );
-
-      // Fetch attendance data for the selected date
-      const attendanceResponse = await axios.get<AttendanceResponse>(
-        `/api/admin/attendance?date=${formattedDate}`
-      );
-
-      // Fetch all historical attendance data (without date parameter)
-      const historicalResponse = await axios.get<AttendanceResponse>(
-        "/api/admin/attendance"
-      );
-
-      // Save all students data
-      const allStudentsData = allStudentsResponse.data.students || [];
-      setAllStudents(allStudentsData);
-
-      // Process student data
-      const studentData = studentResponse.data;
-      const totalStudentsCount =
-        studentData.totalStudents || allStudentsData.length;
-      setTotalStudents(totalStudentsCount);
-
-      // Process current day attendance data
-      const attendanceData = attendanceResponse.data;
-      const records = attendanceData.records || [];
-      setAttendanceData(records);
-
-      // Use meal counts from the API response
-      const mealCounts = attendanceData.mealCounts || {
-        breakfast: 0,
-        lunch: 0,
-        dinner: 0,
-      };
-
-      setSummary({
-        breakfast: mealCounts.breakfast,
-        lunch: mealCounts.lunch,
-        dinner: mealCounts.dinner,
-        total: totalStudentsCount,
-      });
-
-      // Generate student list with attendance information
-      const studentsWithAttendance = processAttendanceWithStudents(
-        records,
-        allStudentsData
-      );
-      setStudents(studentsWithAttendance);
-
-      // Apply filters
-      let filtered = [...studentsWithAttendance];
-
-      // Apply search filter
-      if (searchTerm) {
-        filtered = filtered.filter(
-          (student) =>
-            student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            student.student_id.toLowerCase().includes(searchTerm.toLowerCase())
+        // Fetch student stats
+        const studentResponse = await axios.get<StudentResponse>(
+          "/api/admin/stats/students"
         );
-      }
 
-      // Apply meal filter
-      if (meal !== "all") {
-        filtered = filtered.filter((student) => {
-          if (meal === "breakfast") return student.breakfast;
-          if (meal === "lunch") return student.lunch;
-          if (meal === "dinner") return student.dinner;
-          return true;
+        // Fetch all students (for department data)
+        const allStudentsResponse = await axios.get<{ students: Student[] }>(
+          "/api/students/"
+        );
+
+        // Fetch attendance data for the selected date
+        const attendanceResponse = await axios.get<AttendanceResponse>(
+          `/api/admin/attendance?date=${formattedDate}`
+        );
+
+        // Fetch all historical attendance data (without date parameter)
+        const historicalResponse = await axios.get<AttendanceResponse>(
+          "/api/admin/attendance"
+        );
+
+        // Save all students data
+        const allStudentsData = allStudentsResponse.data.students || [];
+        setAllStudents(allStudentsData);
+
+        // Process student data
+        const studentData = studentResponse.data;
+        const totalStudentsCount =
+          studentData.totalStudents || allStudentsData.length;
+        setTotalStudents(totalStudentsCount);
+
+        // Process current day attendance data
+        const attendanceData = attendanceResponse.data;
+        const records = attendanceData.records || [];
+        setAttendanceData(records);
+
+        // Use meal counts from the API response
+        const mealCounts = attendanceData.mealCounts || {
+          breakfast: 0,
+          lunch: 0,
+          dinner: 0,
+        };
+
+        setSummary({
+          breakfast: mealCounts.breakfast,
+          lunch: mealCounts.lunch,
+          dinner: mealCounts.dinner,
+          total: totalStudentsCount,
         });
+
+        // Generate student list with attendance information
+        const studentsWithAttendance = processAttendanceWithStudents(
+          records,
+          allStudentsData
+        );
+        setStudents(studentsWithAttendance);
+
+        // Apply filters
+        let filtered = [...studentsWithAttendance];
+
+        // Apply search filter
+        if (searchTerm) {
+          filtered = filtered.filter(
+            (student) =>
+              student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              student.student_id
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
+          );
+        }
+
+        // Apply meal filter
+        if (meal !== "all") {
+          filtered = filtered.filter((student) => {
+            if (meal === "breakfast") return student.breakfast;
+            if (meal === "lunch") return student.lunch;
+            if (meal === "dinner") return student.dinner;
+            return true;
+          });
+        }
+
+        setFilteredStudents(filtered);
+
+        // Process historical data for weekly trends
+        const historicalRecords = historicalResponse.data.records || [];
+
+        // Process historical data into daily attendance statistics
+        processHistoricalData(historicalRecords, totalStudentsCount);
+
+        // Generate weekly data from historical records
+        generateWeeklyData(historicalRecords, totalStudentsCount);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Failed to load attendance data. Please try again.");
+      } finally {
+        setLoading(false);
       }
-
-      setFilteredStudents(filtered);
-
-      // Process historical data for weekly trends
-      const historicalRecords = historicalResponse.data.records || [];
-
-      // Process historical data into daily attendance statistics
-      processHistoricalData(historicalRecords, totalStudentsCount);
-
-      // Generate weekly data from historical records
-      generateWeeklyData(historicalRecords, totalStudentsCount);
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setError("Failed to load attendance data. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [] // If fetchData does not use any props or state, leave this empty. Otherwise, add dependencies here.
+  );
 
   // Process historical attendance data
   const processHistoricalData = (
@@ -447,7 +446,8 @@ export default function AttendancePage() {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [currentPage, itemsPerPage, selectedDate, selectedMeal]);
+  }, [currentPage, itemsPerPage, selectedDate,searchQuery, selectedMeal, fetchData]);
+  // Added fetchData to dependency array
 
   // Format date for display
   const formatDate = (date: Date | string): string => {
@@ -466,9 +466,7 @@ export default function AttendancePage() {
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 rounded-t-lg flex justify-between items-center p-4 mb-6">
           <h1 className="text-xl font-semibold">Attendance Dashboard</h1>
-          <div className="flex items-center gap-4">
-           
-          </div>
+          <div className="flex items-center gap-4"></div>
         </header>
 
         {/* Error Message */}
@@ -506,7 +504,7 @@ export default function AttendancePage() {
               }`}
               onClick={() => handleTabChange("today")}
             >
-              Today's Attendance
+              Today&apos;s Attendance
             </button>
             <button
               className={`px-4 py-3 text-sm font-medium ${
@@ -650,7 +648,7 @@ export default function AttendancePage() {
         {activeTab === "today" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Attendance by Meal Type Component */}
-            <AttendanceByMealType/>
+            <AttendanceByMealType />
 
             {/* Weekly Attendance Trends Component */}
             <WeeklyAttendanceTrends />

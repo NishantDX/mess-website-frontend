@@ -36,11 +36,9 @@ export const useAuth = create<authStore>()((set, get) => ({
   loading: true,
 
   logIn: async (email: string, password: string): Promise<AuthResponse> => {
-    
     try {
-
-      if (!email || typeof email !== 'string' || !email.includes('@')) {
-        throw new Error('Invalid email format');
+      if (!email || typeof email !== "string" || !email.includes("@")) {
+        throw new Error("Invalid email format");
       }
       // First authenticate with Firebase
       const userCredential = await signInWithEmailAndPassword(
@@ -79,7 +77,7 @@ export const useAuth = create<authStore>()((set, get) => ({
         user: firebaseUser,
         token,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle axios errors
       if (axios.isAxiosError(error)) {
         console.error(
@@ -92,20 +90,35 @@ export const useAuth = create<authStore>()((set, get) => ({
       }
 
       // Handle Firebase auth errors
-      if (
-        error.code === "auth/user-not-found" ||
-        error.code === "auth/wrong-password"
-      ) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      typeof (error as { code?: unknown }).code === "string"
+    ) {
+      const code = (error as { code: string }).code;
+      if (code === "auth/user-not-found" || code === "auth/wrong-password") {
         throw new Error("Invalid email or password");
-      } else if (error.code === "auth/too-many-requests") {
+      } else if (code === "auth/too-many-requests") {
         throw new Error(
           "Too many failed login attempts. Please try again later."
         );
-      } else {
-        console.error("Login failed:", error);
-        throw new Error("Login failed: " + (error.message || "Unknown error"));
       }
     }
+
+    // Fallback for unknown errors
+    let message = "Unknown error";
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "message" in error &&
+      typeof (error as { message?: unknown }).message === "string"
+    ) {
+      message = (error as { message: string }).message;
+    }
+    console.error("Login failed:", error);
+    throw new Error("Login failed: " + message);
+  }
   },
   signUp: async (email: string, password: string): Promise<AuthResponse> => {
     try {
@@ -118,18 +131,34 @@ export const useAuth = create<authStore>()((set, get) => ({
       const token = await user.getIdToken();
       console.log(token);
       return { user, token };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Firebase auth errors have code property
-      if (error.code === "auth/email-already-in-use") {
-        throw new Error("Email already in use");
-      } else if (error.code === "auth/invalid-email") {
-        throw new Error("Invalid email format");
-      } else if (error.code === "auth/weak-password") {
-        throw new Error("Password is too weak");
-      } else {
-        console.error("Firebase auth error:", error);
-        throw new Error("Signup failed: " + (error.message || "Unknown error"));
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        typeof (error as { code?: unknown }).code === "string"
+      ) {
+        const code = (error as { code: string }).code;
+        if (code === "auth/email-already-in-use") {
+          throw new Error("Email already in use");
+        } else if (code === "auth/invalid-email") {
+          throw new Error("Invalid email format");
+        } else if (code === "auth/weak-password") {
+          throw new Error("Password is too weak");
+        }
       }
+      console.error("Firebase auth error:", error);
+      let message = "Unknown error";
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+      ) {
+        message = (error as { message: string }).message;
+      }
+      throw new Error("Signup failed: " + message);
     }
   },
 

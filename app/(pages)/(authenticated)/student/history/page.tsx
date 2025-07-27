@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format, parseISO } from "date-fns";
 import axios from "axios";
 import { useAuth } from "../../store/authStore";
@@ -33,12 +33,7 @@ export default function MealHistory() {
   const { user } = useAuth();
   const studentId = user?.student_id;
 
-  // Fetch attendance data when component mounts or when studentId changes
-  useEffect(() => {
-    fetchAttendanceData();
-  }, [studentId]);
-
-  const fetchAttendanceData = async () => {
+  const fetchAttendanceData = useCallback(async () => {
     if (!studentId) return;
 
     setIsLoading(true);
@@ -73,7 +68,12 @@ export default function MealHistory() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [studentId]);
+
+  // Fetch attendance data when component mounts or when studentId changes
+  useEffect(() => {
+    fetchAttendanceData();
+  }, [studentId, fetchAttendanceData]);
 
   // Function to handle marking attendance
   // Update the handleMarkAttendance function to use the correct endpoint
@@ -127,12 +127,25 @@ export default function MealHistory() {
 
       // Refresh attendance data
       fetchAttendanceData();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error marking attendance:", err);
-      setMarkingError(
-        err.response?.data?.message ||
-          "Failed to mark attendance. Please try again."
-      );
+      let message = "Failed to mark attendance. Please try again.";
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err &&
+        typeof (err as { response?: unknown }).response === "object" &&
+        (err as { response?: { data?: unknown } }).response &&
+        "data" in (err as { response: { data?: unknown } }).response &&
+        typeof (
+          (err as { response: { data?: { message?: unknown } } }).response
+            .data as { message?: unknown }
+        ).message === "string"
+      ) {
+        message = (err as { response: { data: { message: string } } }).response
+          .data.message;
+      }
+      setMarkingError(message);
     } finally {
       setIsMarkingAttendance(false);
     }
@@ -316,17 +329,17 @@ export default function MealHistory() {
       end: 21 * 60 + 30, // 9:30 PM
     };
     // Special check for dinner since it spans across midnight
-    const isDinnerTime = 
-    currentTimeInMinutes >= dinnerRange.start && 
-    currentTimeInMinutes <= dinnerRange.end;
+    const isDinnerTime =
+      currentTimeInMinutes >= dinnerRange.start &&
+      currentTimeInMinutes <= dinnerRange.end;
 
-  const isBreakfastTime =
-    currentTimeInMinutes >= breakfastRange.start &&
-    currentTimeInMinutes <= breakfastRange.end;
+    const isBreakfastTime =
+      currentTimeInMinutes >= breakfastRange.start &&
+      currentTimeInMinutes <= breakfastRange.end;
 
-  const isLunchTime =
-    currentTimeInMinutes >= lunchRange.start &&
-    currentTimeInMinutes <= lunchRange.end;
+    const isLunchTime =
+      currentTimeInMinutes >= lunchRange.start &&
+      currentTimeInMinutes <= lunchRange.end;
 
     return {
       isBreakfastTime,

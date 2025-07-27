@@ -141,12 +141,32 @@ export default function AdminDashboard() {
       setTimeout(() => {
         setIsMenuModalOpen(false);
       }, 1500);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error updating menu:", error);
-      setUpdateError(
-        error.response?.data?.message ||
-          "Failed to update menu. Please try again."
-      );
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: { data?: unknown } }).response !== null
+      ) {
+        const response = (error as { response?: { data?: unknown } }).response;
+        if (
+          response &&
+          "data" in response &&
+          typeof response.data === "object" &&
+          response.data !== null &&
+          "message" in response.data
+        ) {
+          const message = (response.data as { message?: unknown }).message;
+          setUpdateError(
+            (typeof message === "string" && message) ||
+              "Failed to update menu. Please try again."
+          );
+          return;
+        }
+      }
+      setUpdateError("Failed to update menu. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -210,12 +230,33 @@ export default function AdminDashboard() {
       setTimeout(() => {
         setIsAnnouncementModalOpen(false);
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error sending announcement:", error);
-      setAnnouncementError(
-        error.response?.data?.message ||
-          "Failed to send announcement. Please try again."
-      );
+      // Type guard for Axios error with message
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: { data?: unknown } }).response !== null
+      ) {
+        const response = (error as { response?: { data?: unknown } }).response;
+        if (
+          response &&
+          "data" in response &&
+          typeof response.data === "object" &&
+          response.data !== null &&
+          "message" in response.data
+        ) {
+          const message = (response.data as { message?: unknown }).message;
+          setAnnouncementError(
+            (typeof message === "string" && message) ||
+              "Failed to send announcement. Please try again."
+          );
+          return;
+        }
+      }
+      setAnnouncementError("Failed to send announcement. Please try again.");
     } finally {
       setIsAnnouncementSubmitting(false);
     }
@@ -245,7 +286,7 @@ export default function AdminDashboard() {
                 onClick={handleUpdateMenu}
               >
                 <Edit className="w-4 h-4 mr-2" />
-                Update Today's Menu
+                Update Today&apos;s Menu
               </button>
               <button
                 className="mess-btn mess-btn-outline mess-action-btn"

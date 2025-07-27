@@ -190,12 +190,25 @@ export function TodayMenuCard() {
       setTimeout(() => {
         setIsMenuModalOpen(false);
       }, 1500);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating menu:", error);
-      setUpdateError(
-        error.response?.data?.message ||
-          "Failed to update menu. Please try again."
-      );
+      let message = "Failed to update menu. Please try again.";
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: unknown }).response === "object" &&
+        (error as { response?: { data?: unknown } }).response &&
+        "data" in (error as { response: { data?: unknown } }).response &&
+        typeof (
+          (error as { response: { data?: { message?: unknown } } }).response
+            .data as { message?: unknown }
+        ).message === "string"
+      ) {
+        message = (error as { response: { data: { message: string } } })
+          .response.data.message;
+      }
+      setUpdateError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -206,8 +219,8 @@ export function TodayMenuCard() {
     return (
       <Card className="flex-1">
         <CardHeader>
-          <CardTitle>Today's Menu</CardTitle>
-          <CardDescription>Loading today's meals...</CardDescription>
+          <CardTitle>Today&apos;s Menu</CardTitle>
+          <CardDescription>Loading today&apos;s meals...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-10">
@@ -226,7 +239,7 @@ export function TodayMenuCard() {
     return (
       <Card className="flex-1">
         <CardHeader>
-          <CardTitle>Today's Menu</CardTitle>
+          <CardTitle>Today&apos;s Menu</CardTitle>
           <CardDescription>Daily meal options</CardDescription>
         </CardHeader>
         <CardContent>
@@ -254,14 +267,13 @@ export function TodayMenuCard() {
     <>
       <Card className="mess-card flex-1">
         <CardHeader>
-          <CardTitle>Today's Menu</CardTitle>
+          <CardTitle>Today&apos;s Menu</CardTitle>
           <CardDescription className="mess-text-muted">
             Daily meal options
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mess-section">
-            
             <div
               className={`p-3 rounded-md relative ${
                 mealTime === "breakfast"

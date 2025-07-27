@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect, useCallback, SetStateAction } from "react";
 import {
   Bell,
   Users,
@@ -54,7 +54,7 @@ export default function PaymentsAdminPanel() {
   const [error, setError] = useState("");
 
   // Function to fetch monthly revenue data
-  const fetchMonthlyRevenue = async () => {
+  const fetchMonthlyRevenue = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -106,7 +106,7 @@ export default function PaymentsAdminPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Format currency function
   const formatCurrency = (amount: number) => {
@@ -123,11 +123,13 @@ export default function PaymentsAdminPanel() {
   // Fetch data when component mounts
   useEffect(() => {
     fetchMonthlyRevenue();
-  }, []);
+  }, [fetchMonthlyRevenue]);
 
   // Handle month change - since our API doesn't support passing month parameter yet,
   // this will just show the same data regardless of selected month
-  const handleMonthChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+  const handleMonthChange = (e: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setSelectedMonth(e.target.value);
     // In a real implementation, you would pass the selected month to the API
     fetchMonthlyRevenue();

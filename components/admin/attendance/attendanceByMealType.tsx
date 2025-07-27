@@ -61,8 +61,8 @@ export default function AttendanceByMealType() {
         
         if (records.length > 0) {
           // Group by date
-          const recordsByDate = {};
-          records.forEach(record => {
+          const recordsByDate: { [date: string]: { breakfast: number; lunch: number; dinner: number } } = {};
+          records.forEach((record: { date: string | number; attendance: string; }) => {
             if (!record.date) return;
             
             if (!recordsByDate[record.date]) {
@@ -123,7 +123,7 @@ export default function AttendanceByMealType() {
         <h3 className="font-medium">Attendance by Meal Type</h3>
         <div className="flex items-center text-sm text-gray-500">
           <PieChart size={16} className="mr-1" />
-          Today's Statistics
+          Today&apos;s Statistics
         </div>
       </div>
       <div className="p-4">

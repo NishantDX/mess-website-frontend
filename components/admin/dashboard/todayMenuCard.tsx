@@ -104,7 +104,7 @@ export function TodayMenuCard() {
   if (error) {
     return (
       <div className="mess-card mb-6 bg-red-50 border border-red-200">
-        <h3 className="mess-heading-md mb-4">Today's Menu</h3>
+        <h3 className="mess-heading-md mb-4">Today&apos;s Menu</h3>
         <div className="text-red-500 py-4 text-center">
           {error}
           <button
@@ -122,7 +122,7 @@ export function TodayMenuCard() {
     <div className="mess-card mb-6">
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h3 className="mess-heading-md">Today's Menu</h3>
+          <h3 className="mess-heading-md">Today&apos;s Menu</h3>
           {day && <p className="text-sm text-gray-500 mt-1">{day}</p>}
         </div>
         <div className="mess-menu-tabs">

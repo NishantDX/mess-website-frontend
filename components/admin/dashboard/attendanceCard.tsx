@@ -92,7 +92,7 @@ export function AttendanceCard() {
   if (error) {
     return (
       <div className="mess-card bg-red-50 border border-red-200">
-        <h3 className="mess-text-muted mb-2">Today's Attendance</h3>
+        <h3 className="mess-text-muted mb-2">Today&apos;s Attendance</h3>
         <div className="text-red-500 py-4 text-center">
           {error}
           <button 
@@ -116,7 +116,7 @@ export function AttendanceCard() {
 
   return (
     <div className="mess-card">
-      <h3 className="mess-text-muted mb-2">Today's Attendance</h3>
+      <h3 className="mess-text-muted mb-2">Today&apos;s Attendance</h3>
       <div className="flex flex-col space-y-2">
         <div className="flex justify-between items-center">
           <span>Breakfast</span>

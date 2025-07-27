@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Search,
   Edit,
@@ -74,13 +74,7 @@ export default function StudentsAdminPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [studentsPerPage, setStudentsPerPage] = useState<number>(10);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // In the fetchData function, modify this section:
-  // Update the fetchData function to fix the students data extraction
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -137,18 +131,34 @@ export default function StudentsAdminPage() {
       };
       console.log("Meal counts:", mealCounts);
       calculateAverageAttendance(processedStudents, mealCounts);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching data:", err);
-      setError(`Failed to load data: ${err?.message || "Unknown error"}`);
+      let message = "Unknown error";
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "message" in err &&
+        typeof (err as { message?: unknown }).message === "string"
+      ) {
+        message = (err as { message: string }).message;
+      }
+      setError(`Failed to load data: ${message}`);
     } finally {
       setLoading(false);
     }
-  };
+  },[]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // In the fetchData function, modify this section:
+  // Update the fetchData function to fix the students data extraction
 
   // Update the processStudentData function to ensure it works with your API structure
   const processStudentData = (
-    students: any[],
-    attendanceRecords: any[]
+    students: Student[],
+    attendanceRecords: AttendanceRecord[]
   ): Student[] => {
     console.log("Inside processStudentData");
 
