@@ -130,7 +130,7 @@ export default function StudentsAdminPage() {
         dinner: 0,
       };
       console.log("Meal counts:", mealCounts);
-      calculateAverageAttendance(processedStudents, mealCounts);
+      calculateAverageAttendance(processedStudents, mealCounts, attendanceResponse.data?.totalDays || 30);
     } catch (err: unknown) {
       console.error("Error fetching data:", err);
       let message = "Unknown error";
@@ -237,7 +237,8 @@ export default function StudentsAdminPage() {
   // And update the calculateAverageAttendance function
   const calculateAverageAttendance = (
     students: Student[],
-    mealCounts: { breakfast: number; lunch: number; dinner: number }
+    mealCounts: { breakfast: number; lunch: number; dinner: number },
+    daysCovered: number = 30
   ) => {
     console.log("Calculating average attendance");
 
@@ -255,14 +256,17 @@ export default function StudentsAdminPage() {
     );
 
     // Calculate total possible meals for the last 30 days
-    const totalPossibleMeals = students.length * 3 * 30;
+    const days = Math.max(daysCovered, 1);
+    const totalPossibleMeals = students.length * 3 * days;
     console.log(
       `Total possible meals: ${totalPossibleMeals} (${students.length} students × 3 meals × 30 days)`
     );
 
     // Calculate average attendance percentage
     const average =
-      totalPossibleMeals > 0 ? (totalMeals / totalPossibleMeals) * 100 : 0;
+      totalPossibleMeals > 0
+        ? Math.min(100, (totalMeals / totalPossibleMeals) * 100)
+        : 0;
     console.log(`Average attendance: ${average.toFixed(2)}%`);
     setAverageAttendance(Math.round(average));
   };
