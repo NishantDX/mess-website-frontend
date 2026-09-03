@@ -121,7 +121,7 @@ export default function SignupPage() {
         description: `Welcome, ${fullName}!`,
       });
 
-      router.push(role === "student" ?"student/dashboard" : "/admin/dashboard");
+      router.push(role === "student" ? "/student/dashboard" : "/admin/dashboard");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("API Error:", error.response?.data);

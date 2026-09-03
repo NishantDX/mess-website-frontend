@@ -52,7 +52,7 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
     // If this is an admin route but user is not admin, redirect
     if (!loading && isAuthenticated && !isAdmin && pathname?.includes('/admin')) {
       toast.error('You do not have permission to access this page');
-      router.replace('/dashboard');
+      router.replace("/student/dashboard");
     }
     
     // If this is a student route but user is admin, redirect to admin dashboard

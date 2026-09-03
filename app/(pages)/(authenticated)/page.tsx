@@ -15,7 +15,7 @@ export default function RootPage() {
       if (firebaseUser) {
         // User is authenticated, check role and redirect
         if (user?.role === "admin") {
-          router.replace("/admin");
+          router.replace("/admin/dashboard");
         } else {
           router.replace("/student/dashboard");
         }

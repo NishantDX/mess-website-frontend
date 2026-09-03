@@ -59,7 +59,7 @@ export default function LoginPage() {
             description: `Welcome back, ${username}!`,
           });
           //console.log(role)
-      router.push(role === "student" ? "student/dashboard" : "/admin/dashboard");
+      router.push(role === "student" ? "/student/dashboard" : "/admin/dashboard");
         //router.push("/dashboard");
       } else {
         toast.error("Login failed", {
