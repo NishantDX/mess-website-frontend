@@ -94,24 +94,14 @@ export function DemandForecastCard() {
         )}
       </div>
 
-      <div className="flex flex-col space-y-2">
+      <div className="grid grid-cols-3 gap-3">
         {meals.map((meal) => (
-          <div key={meal}>
-            <div className="flex justify-between items-center">
-              <span className="capitalize">{meal}</span>
-              <span className="font-semibold">
-                {forecast[meal]}{' '}
-                <span className="text-xs text-gray-400">(peak {historicalPeak[meal]})</span>
-              </span>
-            </div>
-            <div className="mess-progress-container">
-              <div
-                className="mess-progress-bar"
-                style={{
-                  width: `${historicalPeak[meal] ? Math.min((forecast[meal] / historicalPeak[meal]) * 100, 100) : 0}%`,
-                }}
-              ></div>
-            </div>
+          <div key={meal} className="text-center bg-gray-50 rounded-md py-3">
+            <div className="text-xs text-gray-500 capitalize mb-1">{meal}</div>
+            <div className="text-2xl font-bold">{forecast[meal]}</div>
+            {historicalPeak[meal] > 0 && (
+              <div className="text-xs text-gray-400 mt-1">peak {historicalPeak[meal]}</div>
+            )}
           </div>
         ))}
       </div>
