@@ -8,6 +8,7 @@ import { AttendanceCard } from "@/components/admin/dashboard/attendanceCard";
 import { RevenueCard } from "@/components/admin/dashboard/revenueCard";
 import { TodayMenuCard } from "@/components/admin/dashboard/todayMenuCard";
 import { AnnouncementsCard } from "@/components/admin/dashboard/announcementCard";
+import { DemandForecastCard } from "@/components/admin/dashboard/demandForecastCard";
 
 export default function AdminDashboard() {
   // State that would typically be fetched from an API
@@ -274,6 +275,8 @@ export default function AdminDashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <AttendanceCard />
+
+          <DemandForecastCard />
 
           <RevenueCard />
 
