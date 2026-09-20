@@ -4,6 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "./store/authStore";
 import { toast } from "sonner";
+import { getSocket } from "@/lib/socket";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -60,7 +61,32 @@ export default function AuthenticatedLayout({ children }: { children: React.Reac
       router.replace('/admin/dashboard');
     }
   }, [isAuthenticated, loading, router, pathname, isAdmin]);
-  
+
+  // Real-time menu updates: anyone with the app open gets notified the
+  // moment an admin changes the menu, no reload or polling needed. Wrapped
+  // defensively — if the socket connection fails for any reason, the rest
+  // of the app must keep working exactly as before.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    try {
+      const socket = getSocket();
+      if (!socket) return;
+
+      const handleMenuUpdated = (payload: { day?: string }) => {
+        toast.info(
+          `Menu updated${payload?.day ? ` for ${payload.day}` : ""} — refresh to see it.`
+        );
+      };
+
+      socket.on("menu:updated", handleMenuUpdated);
+      return () => {
+        socket.off("menu:updated", handleMenuUpdated);
+      };
+    } catch (e) {
+      console.warn("[socket] setup failed:", e);
+    }
+  }, [isAuthenticated]);
+
   const handleSignOut = async () => {
     try {
       await logOut();
