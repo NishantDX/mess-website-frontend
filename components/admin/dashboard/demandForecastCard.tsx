@@ -63,7 +63,13 @@ export function DemandForecastCard() {
     );
   }
 
-  const { forecast, historicalPeak, estimatedPrepReductionPct, basedOnPastOccurrences, dayOfWeek } = data;
+  const {
+    forecast = { breakfast: 0, lunch: 0, dinner: 0 },
+    historicalPeak = { breakfast: 0, lunch: 0, dinner: 0 },
+    estimatedPrepReductionPct = null,
+    basedOnPastOccurrences = 0,
+    dayOfWeek = '',
+  } = data || {};
   const meals: Array<'breakfast' | 'lunch' | 'dinner'> = ['breakfast', 'lunch', 'dinner'];
 
   if (basedOnPastOccurrences === 0) {
